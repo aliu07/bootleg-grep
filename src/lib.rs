@@ -2,8 +2,8 @@ use std::error::Error;
 use std::fs;
 
 pub struct Config {
-    pub query: String,
-    pub file_path: String,
+    query: String,
+    file_path: String,
 }
 
 impl Config {
@@ -17,6 +17,14 @@ impl Config {
         let file_path = args[2].clone();
 
         Ok(Config { query, file_path })
+    }
+
+    pub fn get_query(&self) -> &str {
+        &self.query
+    }
+
+    pub fn get_file_path(&self) -> &str {
+        &self.file_path
     }
 }
 

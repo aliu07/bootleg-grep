@@ -9,8 +9,8 @@ fn main() {
         process::exit(1);
     });
 
-    println!("Searching for '{}'", config.query);
-    println!("In file {}", config.file_path);
+    println!("Searching for '{}'", config.get_query());
+    println!("In file {}", config.get_file_path());
 
     if let Err(e) = bootleg_grep::run(config) {
         println!("Application error: {e}");
