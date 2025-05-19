@@ -1,0 +1,5 @@
+# Build artifacts and dependencies
+**/target/
+
+# OS specific files
+.DS_Store
