@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "bootleg-ripgrep"
+name = "bootleg-grep"
 version = "0.1.0"
