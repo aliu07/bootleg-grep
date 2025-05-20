@@ -44,9 +44,9 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(&config.file_path)?;
 
     let result = if config.ignore_case {
-        search_case_insensitive(&config.get_query(), &contents)
+        search_case_insensitive_iter(&config.get_query(), &contents)
     } else {
-        search(&config.get_query(), &contents)
+        search_iter(&config.get_query(), &contents)
     };
 
     for line in result {
@@ -56,14 +56,39 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+pub fn search_loop<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    let mut result = Vec::new();
+
+    for line in contents.lines() {
+        if line.contains(query) {
+            result.push(line);
+        }
+    }
+
+    return result;
+}
+
+pub fn search_iter<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     contents
         .lines()
         .filter(|line| line.contains(query))
         .collect()
 }
 
-pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+pub fn search_case_insensitive_loop<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    let query = query.to_lowercase();
+    let mut result = Vec::new();
+
+    for line in contents.lines() {
+        if line.to_lowercase().contains(&query) {
+            result.push(line);
+        }
+    }
+
+    result
+}
+
+pub fn search_case_insensitive_iter<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     let query = query.to_lowercase();
 
     contents
@@ -77,7 +102,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn case_sensitive() {
+    fn case_sensitive_loop() {
         let query = "duct";
         let contents = "\
 Rust:
@@ -85,11 +110,29 @@ safe, fast, productive.
 Pick three.
 Duct tape.";
 
-        assert_eq!(vec!["safe, fast, productive."], search(query, contents));
+        assert_eq!(
+            vec!["safe, fast, productive."],
+            search_loop(query, contents)
+        );
     }
 
     #[test]
-    fn case_insensitive() {
+    fn case_sensitive_iter() {
+        let query = "duct";
+        let contents = "\
+Rust:
+safe, fast, productive.
+Pick three.
+Duct tape.";
+
+        assert_eq!(
+            vec!["safe, fast, productive."],
+            search_iter(query, contents)
+        );
+    }
+
+    #[test]
+    fn case_insensitive_loop() {
         let query = "rUsT";
         let contents = "\
 Rust:
@@ -99,7 +142,22 @@ Trust me.";
 
         assert_eq!(
             vec!["Rust:", "Trust me."],
-            search_case_insensitive(query, contents)
+            search_case_insensitive_loop(query, contents)
+        );
+    }
+
+    #[test]
+    fn case_insensitive_iter() {
+        let query = "rUsT";
+        let contents = "\
+Rust:
+safe, fast, productive.
+Pick three.
+Trust me.";
+
+        assert_eq!(
+            vec!["Rust:", "Trust me."],
+            search_case_insensitive_iter(query, contents)
         );
     }
 }
